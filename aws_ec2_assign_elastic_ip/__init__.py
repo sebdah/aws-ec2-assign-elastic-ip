@@ -131,10 +131,10 @@ def _valid_ips():
     :returns: list or None
         List of IPs. If any IP is valid the function returns None
     """
-    if args.ips:
+    if args.valid_ips:
         ips = []
 
-        for ip in args.ips.split(','):
+        for ip in args.valid_ips.split(','):
             ips.append(ip.strip())
 
         LOGGER.info('Valid IPs: {}'.format(', '.join(ips)))

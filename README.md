@@ -31,8 +31,7 @@ The script is configured using command line options. You can provide your AWS cr
                             AWS access key ID
       --aws-secret-key AWS_SECRET_KEY
                             AWS secret access key ID
-      --ips IPS             A comma separated list of valid Elastic IPs. Default:
-                            any
+      --valid-ips IPS       A comma separated list of valid Elastic IPs. Default is to try all IPs. Example: 56.123.56.123,56.123.56.124,56.123.56.125
 
 The `--ips` option require the public IPs in a comma separated sequence. E.g. `56.123.56.123,56.123.56.124,56.123.56.125`.
 

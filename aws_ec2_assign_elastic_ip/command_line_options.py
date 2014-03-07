@@ -25,8 +25,10 @@ PARSER.add_argument(
     '--aws-secret-key',
     help='AWS secret access key ID')
 PARSER.add_argument(
-    '--ips',
-    help='A comma separated list of valid Elastic IPs. Default: any')
+    '--valid-ips',
+    help=(
+        'A comma separated list of valid Elastic IPs. Default is to try '
+        'all IPs. Example: 56.123.56.123,56.123.56.124,56.123.56.125'))
 ARGS = PARSER.parse_args()
 
 if ARGS.version:
