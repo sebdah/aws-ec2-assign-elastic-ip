@@ -39,6 +39,11 @@ The script is configured using command line options. You can provide your AWS cr
 
 The `--valid-ips` option require the public IPs in a comma separated sequence. E.g. `56.123.56.123,56.123.56.124,56.123.56.125`.
 
+Supported platforms
+-------------------
+
+The `aws-ec2-assign-elastic-ip` should work fine on Linux, Mac OS X and Microsoft Windows. Please submit an issue if you have any issues with any of the platforms.
+
 License
 -------
 
