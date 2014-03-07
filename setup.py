@@ -16,7 +16,7 @@ setup(
     author_email='sebastian.dahlgren@skymill.se',
     url='https://github.com/skymill/aws-ec2-assign-elastic-ip',
     keywords="aws amazon web services ec2 as elasticip eip",
-    platforms=['Linux', 'Mac OS X'],
+    platforms=['Any'],
     packages=['aws_ec2_assign_elastic_ip'],
     scripts=['aws-ec2-assign-elastic-ip'],
     include_package_data=True,
@@ -26,7 +26,7 @@ setup(
         'Development Status :: 4 - Beta',
         'Environment :: Console',
         'License :: OSI Approved :: Apache Software License',
-        'Operating System :: POSIX',
+        'Operating System :: OS Independent',
         'Programming Language :: Python'
     ]
 )
