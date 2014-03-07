@@ -1,12 +1,16 @@
 """ Command line parser """
 import argparse
-import os.path
 import sys
 from ConfigParser import SafeConfigParser
 
+if sys.platform in ['win32', 'cygwin']:
+    import ntpath as ospath
+else:
+    import os.path as ospath
+
 SETTINGS = SafeConfigParser()
 SETTINGS.read('{}/settings.conf'.format(
-    os.path.dirname(os.path.realpath(__file__))))
+    ospath.dirname(ospath.realpath(__file__))))
 
 PARSER = argparse.ArgumentParser(
     description='Assign EC2 Elastic IP to the current instance')
@@ -19,10 +23,10 @@ PARSER.add_argument(
     default='us-east-1',
     help='AWS region. Default: us-east-1')
 PARSER.add_argument(
-    '--aws-access-key',
+    '--access-key',
     help='AWS access key ID')
 PARSER.add_argument(
-    '--aws-secret-key',
+    '--secret-key',
     help='AWS secret access key ID')
 PARSER.add_argument(
     '--valid-ips',

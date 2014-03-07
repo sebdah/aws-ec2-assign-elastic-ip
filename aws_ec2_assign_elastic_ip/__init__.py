@@ -41,11 +41,11 @@ logging.config.dictConfig({
 LOGGER = logging.getLogger('aws-ec2-assign-eip')
 
 # Connect to AWS EC2
-if args.aws_access_key or args.aws_secret_key:
+if args.access_key or args.secret_key:
     CONNECTION = connect_to_region(
         args.region,
-        aws_access_key_id=args.aws_access_key,
-        aws_secret_access_key=args.aws_secret_key)
+        aws_access_key_id=args.access_key,
+        aws_secret_access_key=args.secret_key)
 else:
     CONNECTION = connect_to_region(args.region)
 LOGGER.info('Connected to AWS EC2 in {}'.format(args.region))
@@ -56,8 +56,15 @@ def main():
     # Get our instance name
     instance_id = boto.utils.get_instance_metadata()['instance-id']
 
+    # Check if the instance already has an Elastic IP
+    # If so, exit
+    if _has_associated_address(instance_id):
+        LOGGER.warning('{} is already assigned an Elastic IP. Exiting.'.format(
+            instance_id))
+        sys.exit(0)
+
     # Get an unassigned Elastic IP
-    address = _get_unassigned_address()
+    address = _get_unassociated_address()
 
     # Exit if there were no available Elastic IPs
     if not address:
@@ -100,8 +107,8 @@ def _assign_address(instance_id, address):
         address.public_ip, instance_id))
 
 
-def _get_unassigned_address():
-    """ Return the first unassigned EIP we can find
+def _get_unassociated_address():
+    """ Return the first unassociated EIP we can find
 
     :returns: boto.ec2.address or None
     """
@@ -111,18 +118,37 @@ def _get_unassigned_address():
     for address in CONNECTION.get_all_addresses():
         # Check if the address is associated
         if address.instance_id:
+            LOGGER.debug('{} is already associated with {}'.format(
+                address.public_ip, address.instance_id))
             continue
 
         # Check if the address is in the valid IP's list
         if valid_ips and address.public_ip not in valid_ips:
+            LOGGER.debug(
+                '{} is unassociated, but not in the valid IPs list'.format(
+                    address.public_ip, address.instance_id))
             continue
 
+        LOGGER.debug('{} is unassociated and OK for us to take'.format(
+            address.public_ip))
         eip = address
 
     if not eip:
-        LOGGER.error('No unassigned Elastic IP found!!')
+        LOGGER.error('No unassociated Elastic IP found!')
 
     return eip
+
+
+def _has_associated_address(instance_id):
+    """ Check if the instance has an Elastic IP association
+
+    :type instance_id: str
+    :param instance_id: Instances ID
+    :returns: bool -- True if the instance has an Elastic IP associated
+    """
+    if CONNECTION.get_all_addresses(filters={'instance-id': instance_id}):
+        return True
+    return False
 
 
 def _valid_ips():
