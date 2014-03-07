@@ -59,7 +59,8 @@ def main():
     # Check if the instance already has an Elastic IP
     # If so, exit
     if _has_associated_address(instance_id):
-        LOGGER.info('{} is already assigned an Elastic IP. Exiting.')
+        LOGGER.info('{} is already assigned an Elastic IP. Exiting.'.format(
+            instance_id))
         sys.exit(0)
 
     # Get an unassigned Elastic IP
