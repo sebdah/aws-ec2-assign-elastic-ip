@@ -1,0 +1,4 @@
+recursive-include aws_ec2_assign_elastic_ip *
+include aws-ec2-assign-elastic-ip
+include README
+include LICENSE
