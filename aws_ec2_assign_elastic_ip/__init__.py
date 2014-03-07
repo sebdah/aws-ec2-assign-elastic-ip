@@ -41,11 +41,11 @@ logging.config.dictConfig({
 LOGGER = logging.getLogger('aws-ec2-assign-eip')
 
 # Connect to AWS EC2
-if args.aws_access_key or args.aws_secret_key:
+if args.access_key or args.secret_key:
     CONNECTION = connect_to_region(
         args.region,
-        aws_access_key_id=args.aws_access_key,
-        aws_secret_access_key=args.aws_secret_key)
+        aws_access_key_id=args.access_key,
+        aws_secret_access_key=args.secret_key)
 else:
     CONNECTION = connect_to_region(args.region)
 LOGGER.info('Connected to AWS EC2 in {}'.format(args.region))

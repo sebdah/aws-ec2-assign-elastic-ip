@@ -19,10 +19,10 @@ PARSER.add_argument(
     default='us-east-1',
     help='AWS region. Default: us-east-1')
 PARSER.add_argument(
-    '--aws-access-key',
+    '--access-key',
     help='AWS access key ID')
 PARSER.add_argument(
-    '--aws-secret-key',
+    '--secret-key',
     help='AWS secret access key ID')
 PARSER.add_argument(
     '--valid-ips',

@@ -18,8 +18,9 @@ Configuration options
 The script is configured using command line options. You can provide your AWS credentials directly on the command line, but the script also supports all [boto credential config options](http://boto.readthedocs.org/en/latest/boto_config_tut.html#credentials).
 
     usage: aws-ec2-assign-elastic-ip [-h] [--version] [--region REGION]
-                                     [--aws-access-key AWS_ACCESS_KEY]
-                                     [--aws-secret-key AWS_SECRET_KEY] [--ips IPS]
+                                     [--access-key ACCESS_KEY]
+                                     [--secret-key SECRET_KEY]
+                                     [--valid-ips VALID_IPS]
 
     Assign EC2 Elastic IP to the current instance
 
@@ -27,11 +28,14 @@ The script is configured using command line options. You can provide your AWS cr
       -h, --help            show this help message and exit
       --version             Print the Automated EBS Snapshots version and exit
       --region REGION       AWS region. Default: us-east-1
-      --aws-access-key AWS_ACCESS_KEY
+      --access-key ACCESS_KEY
                             AWS access key ID
-      --aws-secret-key AWS_SECRET_KEY
+      --secret-key SECRET_KEY
                             AWS secret access key ID
-      --valid-ips IPS       A comma separated list of valid Elastic IPs. Default is to try all IPs. Example: 56.123.56.123,56.123.56.124,56.123.56.125
+      --valid-ips VALID_IPS
+                            A comma separated list of valid Elastic IPs. Default
+                            is to try all IPs. Example:
+                            56.123.56.123,56.123.56.124,56.123.56.125
 
 The `--valid-ips` option require the public IPs in a comma separated sequence. E.g. `56.123.56.123,56.123.56.124,56.123.56.125`.
 
