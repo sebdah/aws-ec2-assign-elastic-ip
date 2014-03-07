@@ -56,6 +56,12 @@ def main():
     # Get our instance name
     instance_id = boto.utils.get_instance_metadata()['instance-id']
 
+    # Check if the instance already has an Elastic IP
+    # If so, exit
+    if _has_associated_address(instance_id):
+        LOGGER.info('{} is already assigned an Elastic IP. Exiting.')
+        sys.exit(0)
+
     # Get an unassigned Elastic IP
     address = _get_unassociated_address()
 
@@ -130,6 +136,18 @@ def _get_unassociated_address():
         LOGGER.error('No unassociated Elastic IP found!')
 
     return eip
+
+
+def _has_associated_address(instance_id):
+    """ Check if the instance has an Elastic IP association
+
+    :type instance_id: str
+    :param instance_id: Instances ID
+    :returns: bool -- True if the instance has an Elastic IP associated
+    """
+    if CONNECTION.get_all_addresses(filters={'instance-id': instance_id}):
+        return True
+    return False
 
 
 def _valid_ips():

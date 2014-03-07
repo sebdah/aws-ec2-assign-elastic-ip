@@ -5,6 +5,8 @@ Automatically assign Elastic IPs to AWS EC2 instances. This can be really nice i
 
 The script should be executed on the EC2 instance that should get assigned an Elastic IP. This is typically done as part of the instance boot process.
 
+`aws-ec2-assign-elastic-ip` is idempotent and will not assign an new Elastic IP if the instance already has one.
+
 Installation
 ------------
 
