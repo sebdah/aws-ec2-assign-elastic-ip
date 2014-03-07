@@ -5,7 +5,9 @@ Automatically assign Elastic IPs to AWS EC2 instances. This can be really nice
 in auto scaling groups were you need to communicate the external IP's to
 third party systems.
 
-APACHE LICENSE 2.0 Copyright 2014 Skymill Solutions
+APACHE LICENSE 2.0
+
+Copyright 2014 Skymill Solutions
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
