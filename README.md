@@ -46,6 +46,43 @@ Supported platforms
 
 The `aws-ec2-assign-elastic-ip` should work fine on Linux, Mac OS X and Microsoft Windows. Please submit an issue if you have any issues with any of the platforms.
 
+Required IAM permissions
+------------------------
+
+**Community contribution much appreciated on this!**
+
+We have been using the following IAM policys to be able to list and associate Elastic IPs. This can probably be narrowed down abit. It allows EC2 read-only (from the IAM wizard) and `ec2:AssociateAddress` permissions:
+
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2:AssociateAddress",
+          "ec2:Describe*"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": "elasticloadbalancing:Describe*",
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "cloudwatch:ListMetrics",
+          "cloudwatch:GetMetricStatistics",
+          "cloudwatch:Describe*"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": "autoscaling:Describe*",
+        "Resource": "*"
+      }
+    ]
+
 License
 -------
 
