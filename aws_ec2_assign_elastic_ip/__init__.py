@@ -5,6 +5,7 @@ import sys
 
 import boto.utils
 from boto.ec2 import connect_to_region
+from boto.utils import get_instance_metadata
 
 from aws_ec2_assign_elastic_ip.command_line_options import ARGS as args
 
@@ -41,11 +42,17 @@ logging.config.dictConfig({
 LOGGER = logging.getLogger('aws-ec2-assign-eip')
 
 # Connect to AWS EC2
+METADATA = get_instance_metadata(timeout=1, num_retries=1)
+if METADATA:
+    PROFILE_NAME = METADATA['iam']['info'][u'InstanceProfileArn']
+    REGION = METADATA['placement']['availability-zone'][:-1]
 if args.access_key or args.secret_key:
     CONNECTION = connect_to_region(
         args.region,
         aws_access_key_id=args.access_key,
         aws_secret_access_key=args.secret_key)
+elif PROFILE_NAME:
+    CONNECTION = connect_to_region(REGION, profile_name=PROFILE_NAME)
 else:
     CONNECTION = connect_to_region(args.region)
 LOGGER.info('Connected to AWS EC2 in {}'.format(args.region))
