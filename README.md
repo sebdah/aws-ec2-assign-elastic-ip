@@ -17,7 +17,7 @@ Installation
 Configuration options
 ---------------------
 
-The script is configured using command line options. You can provide your AWS credentials directly on the command line, but the script also supports all [boto credential config options](http://boto.readthedocs.org/en/latest/boto_config_tut.html#credentials).
+The script is configured using command line options. You can provide your AWS credentials directly on the command line, but the script also supports all [boto credential config options](http://boto.readthedocs.org/en/latest/boto_config_tut.html#credentials) and AWS instance profiles.
 
     usage: aws-ec2-assign-elastic-ip [-h] [--version] [--region REGION]
                                      [--access-key ACCESS_KEY]
