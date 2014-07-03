@@ -18,29 +18,29 @@ from aws_ec2_assign_elastic_ip.command_line_options import ARGS as args
 logging.config.fileConfig('{0}/logging.conf'.format(
     ospath.dirname(ospath.realpath(__file__))))
 
-LOGGER = logging.getLogger('aws-ec2-assign-eip')
+logger = logging.getLogger('aws-ec2-assign-eip')
 
-REGION = args.region
+region = args.region
 
 # Fetch instance metadata
-METADATA = get_instance_metadata(timeout=1, num_retries=1)
-if METADATA:
+metadata = get_instance_metadata(timeout=1, num_retries=1)
+if metadata:
     try:
-        REGION = METADATA['placement']['availability-zone'][:-1]
+        region = metadata['placement']['availability-zone'][:-1]
     except KeyError:
         pass
 
 # Connect to AWS EC2
 if args.access_key or args.secret_key:
     # Use command line credentials
-    CONNECTION = connect_to_region(
-        REGION,
+    connection = connect_to_region(
+        region,
         aws_access_key_id=args.access_key,
         aws_secret_access_key=args.secret_key)
 else:
     # Use environment vars or global boto configuration or instance metadata
-    CONNECTION = connect_to_region(REGION)
-LOGGER.info('Connected to AWS EC2 in {0}'.format(REGION))
+    connection = connect_to_region(region)
+logger.info('Connected to AWS EC2 in {0}'.format(region))
 
 
 def main():
@@ -51,7 +51,7 @@ def main():
     # Check if the instance already has an Elastic IP
     # If so, exit
     if _has_associated_address(instance_id):
-        LOGGER.warning('{0} is already assigned an Elastic IP. Exiting.'.format(
+        logger.warning('{0} is already assigned an Elastic IP. Exiting.'.format(
             instance_id))
         sys.exit(0)
 
@@ -75,27 +75,27 @@ def _assign_address(instance_id, address):
     :param address: Elastic IP address
     :returns: None
     """
-    LOGGER.debug('Trying to associate {0} with {1}'.format(
+    logger.debug('Trying to associate {0} with {1}'.format(
         instance_id, address.public_ip))
 
     # Check if this is an VPC or standard allocation
     try:
         if address.domain == 'standard':
             # EC2 classic association
-            CONNECTION.associate_address(
+            connection.associate_address(
                 instance_id,
                 public_ip=address.public_ip)
         else:
             # EC2 VPC association
-            CONNECTION.associate_address(
+            connection.associate_address(
                 instance_id,
                 allocation_id=address.allocation_id)
     except Exception as error:
-        LOGGER.error('Failed to associate {0} with {1}. Reason: {2}'.format(
+        logger.error('Failed to associate {0} with {1}. Reason: {2}'.format(
             instance_id, address.public_ip, error))
         sys.exit(1)
 
-    LOGGER.info('Successfully associated Elastic IP {0} with {1}'.format(
+    logger.info('Successfully associated Elastic IP {0} with {1}'.format(
         address.public_ip, instance_id))
 
 
@@ -107,26 +107,26 @@ def _get_unassociated_address():
     eip = None
     valid_ips = _valid_ips()
 
-    for address in CONNECTION.get_all_addresses():
+    for address in connection.get_all_addresses():
         # Check if the address is associated
         if address.instance_id:
-            LOGGER.debug('{0} is already associated with {1}'.format(
+            logger.debug('{0} is already associated with {1}'.format(
                 address.public_ip, address.instance_id))
             continue
 
         # Check if the address is in the valid IP's list
         if valid_ips and address.public_ip not in valid_ips:
-            LOGGER.debug(
+            logger.debug(
                 '{0} is unassociated, but not in the valid IPs list'.format(
                     address.public_ip, address.instance_id))
             continue
 
-        LOGGER.debug('{0} is unassociated and OK for us to take'.format(
+        logger.debug('{0} is unassociated and OK for us to take'.format(
             address.public_ip))
         eip = address
 
     if not eip:
-        LOGGER.error('No unassociated Elastic IP found!')
+        logger.error('No unassociated Elastic IP found!')
 
     return eip
 
@@ -138,7 +138,7 @@ def _has_associated_address(instance_id):
     :param instance_id: Instances ID
     :returns: bool -- True if the instance has an Elastic IP associated
     """
-    if CONNECTION.get_all_addresses(filters={'instance-id': instance_id}):
+    if connection.get_all_addresses(filters={'instance-id': instance_id}):
         return True
     return False
 
@@ -155,8 +155,8 @@ def _valid_ips():
         for ip in args.valid_ips.split(','):
             ips.append(ip.strip())
 
-        LOGGER.info('Valid IPs: {0}'.format(', '.join(ips)))
+        logger.info('Valid IPs: {0}'.format(', '.join(ips)))
         return ips
 
-    LOGGER.info('Valid IPs: any')
+    logger.info('Valid IPs: any')
     return None
