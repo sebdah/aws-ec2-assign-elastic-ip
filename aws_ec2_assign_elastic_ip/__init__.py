@@ -3,6 +3,11 @@ import logging
 import logging.config
 import sys
 
+if sys.platform in ['win32', 'cygwin']:
+    import ntpath as ospath
+else:
+    import os.path as ospath
+
 import boto.utils
 from boto.ec2 import connect_to_region
 from boto.utils import get_instance_metadata
@@ -10,35 +15,9 @@ from boto.utils import get_instance_metadata
 from aws_ec2_assign_elastic_ip.command_line_options import ARGS as args
 
 
-logging.config.dictConfig({
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'standard': {
-            'format':
-            '%(asctime)s - aws-ec2-assign-eip - %(levelname)s - %(message)s'
-        },
-    },
-    'handlers': {
-        'default': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard'
-        }
-    },
-    'loggers': {
-        '': {
-            'handlers': ['default'],
-            'level': 'INFO',
-            'propagate': True
-        },
-        'aws-ec2-assign-eip': {
-            'handlers': ['default'],
-            'level': 'DEBUG',
-            'propagate': False
-        }
-    }
-})
+logging.config.fileConfig('{0}/logging.conf'.format(
+    ospath.dirname(ospath.realpath(__file__))))
+
 LOGGER = logging.getLogger('aws-ec2-assign-eip')
 
 REGION = args.region
