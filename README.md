@@ -46,6 +46,8 @@ Supported platforms
 
 The `aws-ec2-assign-elastic-ip` should work fine on Linux, Mac OS X and Microsoft Windows. Please submit an issue if you have any issues with any of the platforms.
 
+We currently support Python 2.6 and 2.7. Python 3 support is missing as [`boto`](https://github.com/boto/boto) only supports the 2.x series at the moment.
+
 Required IAM permissions
 ------------------------
 
