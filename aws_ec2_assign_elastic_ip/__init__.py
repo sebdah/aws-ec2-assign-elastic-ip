@@ -61,7 +61,7 @@ if args.access_key or args.secret_key:
 else:
     # Use environment vars or global boto configuration or instance metadata
     CONNECTION = connect_to_region(REGION)
-LOGGER.info('Connected to AWS EC2 in {}'.format(REGION))
+LOGGER.info('Connected to AWS EC2 in {0}'.format(REGION))
 
 
 def main():
@@ -72,7 +72,7 @@ def main():
     # Check if the instance already has an Elastic IP
     # If so, exit
     if _has_associated_address(instance_id):
-        LOGGER.warning('{} is already assigned an Elastic IP. Exiting.'.format(
+        LOGGER.warning('{0} is already assigned an Elastic IP. Exiting.'.format(
             instance_id))
         sys.exit(0)
 
@@ -96,7 +96,7 @@ def _assign_address(instance_id, address):
     :param address: Elastic IP address
     :returns: None
     """
-    LOGGER.debug('Trying to associate {} with {}'.format(
+    LOGGER.debug('Trying to associate {0} with {1}'.format(
         instance_id, address.public_ip))
 
     # Check if this is an VPC or standard allocation
@@ -112,11 +112,11 @@ def _assign_address(instance_id, address):
                 instance_id,
                 allocation_id=address.allocation_id)
     except Exception as error:
-        LOGGER.error('Failed to associate {} with {}. Reason: {}'.format(
+        LOGGER.error('Failed to associate {0} with {1}. Reason: {2}'.format(
             instance_id, address.public_ip, error))
         sys.exit(1)
 
-    LOGGER.info('Successfully associated Elastic IP {} with {}'.format(
+    LOGGER.info('Successfully associated Elastic IP {0} with {1}'.format(
         address.public_ip, instance_id))
 
 
@@ -131,18 +131,18 @@ def _get_unassociated_address():
     for address in CONNECTION.get_all_addresses():
         # Check if the address is associated
         if address.instance_id:
-            LOGGER.debug('{} is already associated with {}'.format(
+            LOGGER.debug('{0} is already associated with {1}'.format(
                 address.public_ip, address.instance_id))
             continue
 
         # Check if the address is in the valid IP's list
         if valid_ips and address.public_ip not in valid_ips:
             LOGGER.debug(
-                '{} is unassociated, but not in the valid IPs list'.format(
+                '{0} is unassociated, but not in the valid IPs list'.format(
                     address.public_ip, address.instance_id))
             continue
 
-        LOGGER.debug('{} is unassociated and OK for us to take'.format(
+        LOGGER.debug('{0} is unassociated and OK for us to take'.format(
             address.public_ip))
         eip = address
 
@@ -176,7 +176,7 @@ def _valid_ips():
         for ip in args.valid_ips.split(','):
             ips.append(ip.strip())
 
-        LOGGER.info('Valid IPs: {}'.format(', '.join(ips)))
+        LOGGER.info('Valid IPs: {0}'.format(', '.join(ips)))
         return ips
 
     LOGGER.info('Valid IPs: any')

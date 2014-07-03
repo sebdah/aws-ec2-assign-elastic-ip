@@ -9,7 +9,7 @@ else:
     import os.path as ospath
 
 SETTINGS = SafeConfigParser()
-SETTINGS.read('{}/settings.conf'.format(
+SETTINGS.read('{0}/settings.conf'.format(
     ospath.dirname(ospath.realpath(__file__))))
 
 PARSER = argparse.ArgumentParser(
@@ -36,6 +36,6 @@ PARSER.add_argument(
 ARGS = PARSER.parse_args()
 
 if ARGS.version:
-    print('AWS EC2 Assign Elastic IP: {}'.format(
+    print('AWS EC2 Assign Elastic IP: {0}'.format(
         SETTINGS.get('general', 'version')))
     sys.exit(0)
