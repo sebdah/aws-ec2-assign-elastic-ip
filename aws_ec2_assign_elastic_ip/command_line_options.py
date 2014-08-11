@@ -33,6 +33,11 @@ PARSER.add_argument(
     help=(
         'A comma separated list of valid Elastic IPs. Default is to try '
         'all IPs. Example: 56.123.56.123,56.123.56.124,56.123.56.125'))
+PARSER.add_argument(
+    '--cidr',
+    help=(
+        'a CIDR expression instead of a list of ip addresses. Example: '
+        '54.0.0.0/8'))
 ARGS = PARSER.parse_args()
 
 if ARGS.version:
