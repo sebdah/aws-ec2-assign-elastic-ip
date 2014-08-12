@@ -33,8 +33,8 @@ PARSER.add_argument(
     help=(
         'A comma separated list of valid Elastic IPs. You can use CIDR '
         'expressions to select ranges. Valid examples:'
-        '58.0.0.0/8',
-        '123.213.0.0/16,58.0.0.0/8,195.234.023.0',
+        '58.0.0.0/8'
+        '123.213.0.0/16,58.0.0.0/8,195.234.023.0'
         '195.234.234.23,195.234.234.24'))
 ARGS = PARSER.parse_args()
 
