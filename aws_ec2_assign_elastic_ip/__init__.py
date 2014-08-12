@@ -1,8 +1,9 @@
 """ Assign EC2 Elastic IP to the current instance """
 import logging
 import logging.config
-import sys
 import netaddr
+import re
+import sys
 
 if sys.platform in ['win32', 'cygwin']:
     import ntpath as ospath
@@ -64,7 +65,10 @@ def main():
         sys.exit(1)
 
     # Assign the Elastic IP to our instance
-    _assign_address(instance_id, address)
+    if args.dry_run:
+        logger.info('Would assign IP {0}'.format(address.public_ip))
+    else:
+        _assign_address(instance_id, address)
 
 
 def _assign_address(instance_id, address):
@@ -151,37 +155,46 @@ def _valid_ips():
         List of IPs. If any IP is valid the function returns None
     """
     ips = []
-    if args.valid_ips:
+    ipv4_pattern = re.compile(
+        '^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}'
+        '([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$')
+    ipv4_cidr_pattern = re.compile(
+        '^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}'
+        '([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])'
+        '(\/(\d|[1-2]\d|3[0-2]))$')
 
-        for ip in args.valid_ips.split(','):
-            ips.append(ip.strip())
+    for ip in args.valid_ips.split(','):
+        ip = ip.strip()
 
+        # Match IPv4 addresses
+        if ipv4_pattern.match(ip):
+            ips.append(ip)
+
+        # Match IPv4 addresses expressed as a CIDR range
+        elif ipv4_cidr_pattern.match(ip):
+            logger.info('Choosing IP from given CIDR block {0}'.format(ip))
+            try:
+                cidr = netaddr.IPNetwork(ip)
+            except Exception as err:
+                logger.critical('{0} is not a valid CIDR range: {1}'.format(
+                    ip, err))
+                sys.exit(2)
+            for cidr_ip in cidr:
+                # since this is essentially DHCP, we probably don't want
+                # to assign x.x.x.0 and x.x.x.255, assuming this is a /24.
+                __, __, __, fourth = cidr_ip.words
+
+                if fourth == 0 or fourth == 255:
+                    logger.debug(
+                        "Ignoring {0} as it ends with either 0 or 255".format(
+                            cidr_ip))
+                    continue
+
+                ips.append(cidr_ip.format())
+
+    if ips:
         logger.info('Valid IPs: {0}'.format(', '.join(ips)))
         return ips
-    elif args.cidr:
-        logger.info('Choosing IP from given CIDR block {0}'.format(
-            args.cidr))
-        try:
-            cidr = netaddr.IPNetwork(args.cidr)
-        except Exception as e:
-            logger.critical('{0} is not a valid CIDR range: {1}'.format(
-                args.cidr, e))
-            sys.exit(2)
-        for ip in cidr:
-            # since this is essentially DHCP, we probably don't want to assign
-            # x.x.x.0 and x.x.x.255, assuming this is a /24.
-            __,__,__,fourth = ip.words
-            if fourth == 0 or fourth == 255:
-                logger.info("Skipping ip {0} as it ends in either .0 or .255".format(
-                         ip))
-                continue
-            ips.append(ip.format())
-        if not ips == []:
-            return ips
-        else:
-            logger.critical("No valid IP addresses returned from CIDR range.\n"
-                            "Something went wrong")
-            sys.exit(2)
 
     logger.info('Valid IPs: any')
     return None
