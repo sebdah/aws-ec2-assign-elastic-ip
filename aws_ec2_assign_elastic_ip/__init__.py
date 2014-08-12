@@ -172,13 +172,12 @@ def _valid_ips():
 
         # Match IPv4 addresses expressed as a CIDR range
         elif ipv4_cidr_pattern.match(ip):
-            logger.info('Choosing IP from given CIDR block {0}'.format(
-                args.cidr))
+            logger.info('Choosing IP from given CIDR block {0}'.format(ip))
             try:
                 cidr = netaddr.IPNetwork(ip)
             except Exception as err:
                 logger.critical('{0} is not a valid CIDR range: {1}'.format(
-                    args.cidr, err))
+                    ip, err))
                 sys.exit(2)
             for cidr_ip in cidr:
                 # since this is essentially DHCP, we probably don't want
