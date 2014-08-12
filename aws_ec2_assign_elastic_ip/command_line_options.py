@@ -36,7 +36,7 @@ PARSER.add_argument(
 PARSER.add_argument(
     '--cidr',
     help=(
-        'a CIDR expression instead of a list of ip addresses. Example: '
+        'A CIDR expression instead of a list of IP addresses. Example: '
         '54.0.0.0/8'))
 ARGS = PARSER.parse_args()
 
