@@ -173,9 +173,9 @@ def _valid_ips():
                 args.cidr))
             try:
                 cidr = netaddr.IPNetwork(args.cidr)
-            except Exception as e:
+            except Exception as err:
                 logger.critical('{0} is not a valid CIDR range: {1}'.format(
-                    args.cidr, e))
+                    args.cidr, err))
                 sys.exit(2)
             for cidr_ip in cidr:
                 # since this is essentially DHCP, we probably don't want
