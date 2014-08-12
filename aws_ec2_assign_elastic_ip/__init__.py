@@ -2,6 +2,7 @@
 import logging
 import logging.config
 import sys
+import netaddr
 
 if sys.platform in ['win32', 'cygwin']:
     import ntpath as ospath
@@ -149,14 +150,38 @@ def _valid_ips():
     :returns: list or None
         List of IPs. If any IP is valid the function returns None
     """
+    ips = []
     if args.valid_ips:
-        ips = []
 
         for ip in args.valid_ips.split(','):
             ips.append(ip.strip())
 
         logger.info('Valid IPs: {0}'.format(', '.join(ips)))
         return ips
+    elif args.cidr:
+        logger.info('Choosing IP from given CIDR block {0}'.format(
+            args.cidr))
+        try:
+            cidr = netaddr.IPNetwork(args.cidr)
+        except Exception as e:
+            logger.critical('{0} is not a valid CIDR range: {1}'.format(
+                args.cidr, e))
+            sys.exit(2)
+        for ip in cidr:
+            # since this is essentially DHCP, we probably don't want to assign
+            # x.x.x.0 and x.x.x.255, assuming this is a /24.
+            __,__,__,fourth = ip.words
+            if fourth == 0 or fourth == 255:
+                logger.info("Skipping ip {0} as it ends in either .0 or .255".format(
+                         ip))
+                continue
+            ips.append(ip.format())
+        if not ips == []:
+            return ips
+        else:
+            logger.critical("No valid IP addresses returned from CIDR range.\n"
+                            "Something went wrong")
+            sys.exit(2)
 
     logger.info('Valid IPs: any')
     return None

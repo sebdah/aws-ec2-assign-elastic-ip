@@ -21,7 +21,7 @@ setup(
     scripts=['aws-ec2-assign-elastic-ip'],
     include_package_data=True,
     zip_safe=False,
-    install_requires=['boto >= 2.29.1'],
+    install_requires=['boto >= 2.29.1', 'netaddr >= 0.7.12'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
