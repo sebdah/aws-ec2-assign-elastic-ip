@@ -31,6 +31,12 @@ PARSER.add_argument(
     '--secret-key',
     help='AWS secret access key ID')
 PARSER.add_argument(
+    '--dry-run',
+    action='store_true',
+    help=(
+        'Turn on dry run mode. No address will be assigned,\n'
+        'we will only print which we whould take'))
+PARSER.add_argument(
     '--valid-ips',
     help=(
         'A comma separated list of valid Elastic IPs.\nYou can use CIDR '

@@ -65,7 +65,10 @@ def main():
         sys.exit(1)
 
     # Assign the Elastic IP to our instance
-    _assign_address(instance_id, address)
+    if args.dry_run:
+        logger.info('Would assign IP {0}'.format(address))
+    else:
+        _assign_address(instance_id, address)
 
 
 def _assign_address(instance_id, address):
@@ -172,7 +175,7 @@ def _valid_ips():
             logger.info('Choosing IP from given CIDR block {0}'.format(
                 args.cidr))
             try:
-                cidr = netaddr.IPNetwork(args.cidr)
+                cidr = netaddr.IPNetwork(ip)
             except Exception as err:
                 logger.critical('{0} is not a valid CIDR range: {1}'.format(
                     args.cidr, err))
