@@ -21,7 +21,7 @@ The script is configured using command line options. You can provide your AWS cr
 
     usage: aws-ec2-assign-elastic-ip [-h] [--version] [--region REGION]
                                      [--access-key ACCESS_KEY]
-                                     [--secret-key SECRET_KEY]
+                                     [--secret-key SECRET_KEY] [--dry-run]
                                      [--valid-ips VALID_IPS]
 
     Assign EC2 Elastic IP to the current instance
@@ -34,10 +34,15 @@ The script is configured using command line options. You can provide your AWS cr
                             AWS access key ID
       --secret-key SECRET_KEY
                             AWS secret access key ID
+      --dry-run             Turn on dry run mode. No address will be assigned,
+                            we will only print which we whould take
       --valid-ips VALID_IPS
-                            A comma separated list of valid Elastic IPs. Default
-                            is to try all IPs. Example:
-                            56.123.56.123,56.123.56.124,56.123.56.125
+                            A comma separated list of valid Elastic IPs.
+                            You can use CIDR expressions to select ranges.
+                            Valid examples:
+                            - 58.0.0.0/8
+                            - 123.213.0.0/16,58.0.0.0/8,195.234.023.0
+                            - 195.234.234.23,195.234.234.24
 
 The `--valid-ips` option require the public IPs in a comma separated sequence. E.g. `56.123.56.123,56.123.56.124,56.123.56.125`.
 
@@ -55,35 +60,37 @@ Required IAM permissions
 
 We have been using the following IAM policys to be able to list and associate Elastic IPs. This can probably be narrowed down abit. It allows EC2 read-only (from the IAM wizard) and `ec2:AssociateAddress` permissions:
 
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Action": [
-          "ec2:AssociateAddress",
-          "ec2:Describe*"
-        ],
-        "Resource": "*"
-      },
-      {
-        "Effect": "Allow",
-        "Action": "elasticloadbalancing:Describe*",
-        "Resource": "*"
-      },
-      {
-        "Effect": "Allow",
-        "Action": [
-          "cloudwatch:ListMetrics",
-          "cloudwatch:GetMetricStatistics",
-          "cloudwatch:Describe*"
-        ],
-        "Resource": "*"
-      },
-      {
-        "Effect": "Allow",
-        "Action": "autoscaling:Describe*",
-        "Resource": "*"
-      }
-    ]
+    {
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "ec2:AssociateAddress",
+            "ec2:Describe*"
+          ],
+          "Resource": "*"
+        },
+        {
+          "Effect": "Allow",
+          "Action": "elasticloadbalancing:Describe*",
+          "Resource": "*"
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "cloudwatch:ListMetrics",
+            "cloudwatch:GetMetricStatistics",
+            "cloudwatch:Describe*"
+          ],
+          "Resource": "*"
+        },
+        {
+          "Effect": "Allow",
+          "Action": "autoscaling:Describe*",
+          "Resource": "*"
+        }
+      ]
+    }
 
 License
 -------
