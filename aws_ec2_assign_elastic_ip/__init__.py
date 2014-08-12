@@ -66,7 +66,7 @@ def main():
 
     # Assign the Elastic IP to our instance
     if args.dry_run:
-        logger.info('Would assign IP {0}'.format(address))
+        logger.info('Would assign IP {0}'.format(address.public_ip))
     else:
         _assign_address(instance_id, address)
 
