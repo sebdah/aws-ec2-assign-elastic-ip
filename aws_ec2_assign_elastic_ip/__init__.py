@@ -183,16 +183,6 @@ def _valid_ips():
                     ip, err))
                 sys.exit(2)
             for cidr_ip in cidr:
-                # since this is essentially DHCP, we probably don't want
-                # to assign x.x.x.0 and x.x.x.255, assuming this is a /24.
-                __, __, __, fourth = cidr_ip.words
-
-                if fourth == 0 or fourth == 255:
-                    logger.debug(
-                        "Ignoring {0} as it ends with either 0 or 255".format(
-                            cidr_ip))
-                    continue
-
                 ips.append(cidr_ip.format())
 
     if ips:
