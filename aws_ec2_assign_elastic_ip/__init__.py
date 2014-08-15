@@ -1,8 +1,6 @@
 """ Assign EC2 Elastic IP to the current instance """
 import logging
 import logging.config
-import netaddr
-import re
 import sys
 
 if sys.platform in ['win32', 'cygwin']:
@@ -11,6 +9,7 @@ else:
     import os.path as ospath
 
 import boto.utils
+from netaddr import IPNetwork, AddrFormatError, AddrConversionError
 from boto.ec2 import connect_to_region
 from boto.utils import get_instance_metadata
 
@@ -110,7 +109,6 @@ def _get_unassociated_address():
     :returns: boto.ec2.address or None
     """
     eip = None
-    valid_ips = _valid_ips()
 
     for address in connection.get_all_addresses():
         # Check if the address is associated
@@ -120,15 +118,16 @@ def _get_unassociated_address():
             continue
 
         # Check if the address is in the valid IP's list
-        if valid_ips and address.public_ip not in valid_ips:
+        if _is_valid(address.public_ip):
+            logger.debug('{0} is unassociated and OK for us to take'.format(
+                address.public_ip))
+            eip = address
+            break
+
+        else:
             logger.debug(
                 '{0} is unassociated, but not in the valid IPs list'.format(
                     address.public_ip, address.instance_id))
-            continue
-
-        logger.debug('{0} is unassociated and OK for us to take'.format(
-            address.public_ip))
-        eip = address
 
     if not eip:
         logger.error('No unassociated Elastic IP found!')
@@ -148,53 +147,28 @@ def _has_associated_address(instance_id):
     return False
 
 
-def _valid_ips():
-    """ Get a list of the valid Elastic IPs to assign
+def _is_valid(address):
+    """ Check if the configuration allows us to assign this address
 
-    :returns: list or None
-        List of IPs. If any IP is valid the function returns None
+    :type address: str
+    :param address: IP address to check
+    :returns: bool -- True if association is OK
     """
-    ips = []
-    ipv4_pattern = re.compile(
-        '^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}'
-        '([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$')
-    ipv4_cidr_pattern = re.compile(
-        '^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}'
-        '([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])'
-        '(\/(\d|[1-2]\d|3[0-2]))$')
+    if not args.valid_ips:
+        return True
 
-    for ip in args.valid_ips.split(','):
-        ip = ip.strip()
+    for conf_ip in args.valid_ips.split(','):
+        try:
+            for ip in IPNetwork(conf_ip):
+                if ip == address:
+                    return True
 
-        # Match IPv4 addresses
-        if ipv4_pattern.match(ip):
-            ips.append(ip)
+        except AddrFormatError as err:
+            logger.error('Invalid valid IP configured: {0}'.format(err))
+            pass
 
-        # Match IPv4 addresses expressed as a CIDR range
-        elif ipv4_cidr_pattern.match(ip):
-            logger.info('Choosing IP from given CIDR block {0}'.format(ip))
-            try:
-                cidr = netaddr.IPNetwork(ip)
-            except Exception as err:
-                logger.critical('{0} is not a valid CIDR range: {1}'.format(
-                    ip, err))
-                sys.exit(2)
-            for cidr_ip in cidr:
-                # since this is essentially DHCP, we probably don't want
-                # to assign x.x.x.0 and x.x.x.255, assuming this is a /24.
-                __, __, __, fourth = cidr_ip.words
+        except AddrConversionError as err:
+            logger.error('Invalid valid IP configured: {0}'.format(err))
+            pass
 
-                if fourth == 0 or fourth == 255:
-                    logger.debug(
-                        "Ignoring {0} as it ends with either 0 or 255".format(
-                            cidr_ip))
-                    continue
-
-                ips.append(cidr_ip.format())
-
-    if ips:
-        logger.info('Valid IPs: {0}'.format(', '.join(ips)))
-        return ips
-
-    logger.info('Valid IPs: any')
-    return None
+    return False
