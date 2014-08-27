@@ -160,7 +160,7 @@ def _is_valid(address):
     for conf_ip in args.valid_ips.split(','):
         try:
             for ip in IPNetwork(conf_ip):
-                if ip == address:
+                if str(ip) == str(address):
                     return True
 
         except AddrFormatError as err:
