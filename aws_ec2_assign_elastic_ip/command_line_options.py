@@ -19,7 +19,7 @@ PARSER = argparse.ArgumentParser(
 PARSER.add_argument(
     '--version',
     action='count',
-    help='Print the Automated EBS Snapshots version and exit')
+    help='Print the aws-ec2-assign-elastic-ip version and exit')
 PARSER.add_argument(
     '--region',
     default='us-east-1',
