@@ -1,7 +1,10 @@
 """ Command line parser """
 import argparse
 import sys
-from ConfigParser import SafeConfigParser
+try:
+    from ConfigParser import SafeConfigParser
+except ImportError:
+    from configparser import SafeConfigParser
 from argparse import RawTextHelpFormatter
 
 if sys.platform in ['win32', 'cygwin']:
