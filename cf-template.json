@@ -1,0 +1,133 @@
+{
+  "Description" : "Test of Elastic IP association",
+
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Parameters" : {
+
+    "InstanceType" : {
+      "Description" : "EC2 instance type for backup server",
+      "Type" : "String",
+      "Default" : "t2.micro"
+    },
+
+    "KeyName" : {
+      "Description" : "Key pair name",
+      "Type" : "String"
+    }
+
+  },
+
+  "Mappings" : {
+
+    "AWSInstanceType2Arch" : {
+      "t1.micro": { "Arch" : "64" }
+    },
+
+    "AWSRegionArch2AMI": {
+      "eu-west-1": {
+        "32" : "NOT_YET_SUPPORTED",
+        "64" : "ami-76817c1e",
+        "64HVM" : "NOT_YET_SUPPORTED"
+      }
+    }
+  },
+
+  "Resources" : {
+    "LaunchConfiguration" : {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+
+      "Properties": {
+        "ImageId" : {
+          "Fn::FindInMap" : [
+            "AWSRegionArch2AMI",
+            { "Ref" : "AWS::Region" },
+            { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] }
+          ]
+        },
+        "AssociatePublicIpAddress" : true,
+        "InstanceType"   : { "Ref" : "InstanceType" },
+        "SecurityGroups" : [ { "Ref" : "SecurityGroup" } ],
+        "KeyName"        : { "Ref" : "KeyName" },
+        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+
+          "# Install cfn bootstraping tools\n",
+          "apt-get update\n",
+          "apt-get -y install python-setuptools python-pip\n",
+          "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
+
+          "# Make sure we have the latest aws-ec2-assign-elastic-ip\n",
+          "pip install aws-ec2-assign-elastic-ip==0.1.0b1 || error_exit 'Failed upgrading aws-ec2-assign-elastic-ip to the latest version'\n",
+
+          "# Assign an Elastic IP\n",
+          "aws-ec2-assign-elastic-ip",
+          "    --access-key ", { "Ref" : "AccessKeys" },
+          "    --secret-key ", { "Fn::GetAtt": ["AccessKeys", "SecretAccessKey"] },
+          "    --region ", { "Ref" : "AWS::Region" },
+          " >> /var/log/aws-ec2-assign-elastic-ip.log\n"
+        ]]}}
+      }
+    },
+
+    "AutoScalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "LaunchConfigurationName": { "Ref": "LaunchConfiguration" },
+        "MinSize": "1",
+        "MaxSize": "1",
+        "Tags" : [
+          {
+            "Key" : "Name",
+            "Value" : { "Ref" : "AWS::StackName" },
+            "PropagateAtLaunch" : true
+          }
+        ]
+      }
+    },
+
+    "User" : {
+      "Type" : "AWS::IAM::User",
+      "Properties" : {
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "cloudformation",
+            "PolicyDocument": { "Statement":[{
+              "Effect":"Allow",
+              "Action":[
+                "cloudformation:DescribeStackResource",
+                "ec2:*"
+              ],
+              "Resource":"*"
+            }]}
+          }
+        ]
+      }
+    },
+
+    "AccessKeys" : {
+      "Type" : "AWS::IAM::AccessKey",
+      "Properties" : {
+        "UserName" : {"Ref": "User"}
+      }
+    },
+
+    "EIP1" : { "Type" : "AWS::EC2::EIP" },
+    "EIP2" : { "Type" : "AWS::EC2::EIP" },
+    "EIP3" : { "Type" : "AWS::EC2::EIP" },
+
+    "SecurityGroup" : {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription": "Security group",
+        "SecurityGroupIngress": [
+          { "IpProtocol": "tcp", "FromPort": "22", "ToPort": "22", "CidrIp": "0.0.0.0/0" }
+        ],
+        "Tags" : [
+          { "Key": "Name",    "Value" : { "Ref" : "AWS::StackName" } }
+        ]
+      }
+    }
+  }
+}
