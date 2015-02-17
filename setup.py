@@ -1,7 +1,10 @@
 """ Setup script for PyPI """
 import os
 from setuptools import setup
-from ConfigParser import SafeConfigParser
+try:
+    from ConfigParser import SafeConfigParser
+except ImportError:
+    from configparser import SafeConfigParser
 
 settings = SafeConfigParser()
 settings.read(os.path.realpath('aws_ec2_assign_elastic_ip/settings.conf'))
@@ -21,7 +24,7 @@ setup(
     scripts=['aws-ec2-assign-elastic-ip'],
     include_package_data=True,
     zip_safe=False,
-    install_requires=['boto >= 2.29.1', 'netaddr >= 0.7.12'],
+    install_requires=['boto >= 2.36.0', 'netaddr >= 0.7.12'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
