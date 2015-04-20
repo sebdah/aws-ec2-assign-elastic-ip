@@ -69,25 +69,6 @@ We have been using the following IAM policys to be able to list and associate El
             "ec2:Describe*"
           ],
           "Resource": "*"
-        },
-        {
-          "Effect": "Allow",
-          "Action": "elasticloadbalancing:Describe*",
-          "Resource": "*"
-        },
-        {
-          "Effect": "Allow",
-          "Action": [
-            "cloudwatch:ListMetrics",
-            "cloudwatch:GetMetricStatistics",
-            "cloudwatch:Describe*"
-          ],
-          "Resource": "*"
-        },
-        {
-          "Effect": "Allow",
-          "Action": "autoscaling:Describe*",
-          "Resource": "*"
         }
       ]
     }
