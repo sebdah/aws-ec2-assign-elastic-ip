@@ -117,7 +117,7 @@ def _get_unassociated_address():
                 address.public_ip, address.instance_id))
             continue
 
-        #Check if the address is attached to an ENI
+        # Check if the address is attached to an ENI
         if address.network_interface_id:
             logger.debug('{0} is already attached to {1}'.format(
                 address.public_ip, address.network_interface_id))
