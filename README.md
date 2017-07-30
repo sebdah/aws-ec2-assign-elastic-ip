@@ -3,11 +3,15 @@ aws-ec2-assign-elastic-ip
 
 [![PyPI version](https://badge.fury.io/py/aws-ec2-assign-elastic-ip.svg)](https://badge.fury.io/py/aws-ec2-assign-elastic-ip)
 
-Automatically assign Elastic IPs to AWS EC2 instances. This can be really nice in auto scaling groups were you need to communicate the external IP's to third party systems.
+Automatically assign Elastic IPs to AWS EC2 instances. This can be really nice
+in auto scaling groups were you need to communicate the external IP's to third
+party systems.
 
-The script should be executed on the EC2 instance that should get assigned an Elastic IP. This is typically done as part of the instance boot process.
+The script should be executed on the EC2 instance that should get assigned an
+Elastic IP. This is typically done as part of the instance boot process.
 
-`aws-ec2-assign-elastic-ip` is idempotent and will not assign an new Elastic IP if the instance already has one.
+`aws-ec2-assign-elastic-ip` is idempotent and will not assign an new Elastic IP
+if the instance already has one.
 
 Installation
 ------------
@@ -19,7 +23,10 @@ Installation
 Configuration options
 ---------------------
 
-The script is configured using command line options. You can provide your AWS credentials directly on the command line, but the script also supports all [boto credential config options](http://boto.readthedocs.org/en/latest/boto_config_tut.html#credentials) and AWS instance profiles.
+The script is configured using command line options. You can provide your AWS
+credentials directly on the command line, but the script also supports all [boto
+credential config options](http://boto.readthedocs.org/en/latest/boto_config_tut.html#credentials)
+and AWS instance profiles.
 
     usage: aws-ec2-assign-elastic-ip [-h] [--version] [--region REGION]
                                      [--access-key ACCESS_KEY]
@@ -46,12 +53,15 @@ The script is configured using command line options. You can provide your AWS cr
                             - 123.213.0.0/16,58.0.0.0/8,195.234.023.0
                             - 195.234.234.23,195.234.234.24
 
-The `--valid-ips` option require the public IPs in a comma separated sequence. E.g. `56.123.56.123,56.123.56.124,56.123.56.125`.
+The `--valid-ips` option require the public IPs in a comma separated sequence.
+E.g. `56.123.56.123,56.123.56.124,56.123.56.125`.
 
 Supported platforms
 -------------------
 
-The `aws-ec2-assign-elastic-ip` should work fine on Linux, Mac OS X and Microsoft Windows. Please submit an issue if you have any issues with any of the platforms.
+The `aws-ec2-assign-elastic-ip` should work fine on Linux, Mac OS X and
+Microsoft Windows. Please submit an issue if you have any issues with any of the
+platforms.
 
 We currently support Python 2.6, 2.7 and 3.X
 
@@ -60,7 +70,9 @@ Required IAM permissions
 
 **Community contribution much appreciated on this!**
 
-We have been using the following IAM policys to be able to list and associate Elastic IPs. This can probably be narrowed down abit. It allows EC2 read-only (from the IAM wizard) and `ec2:AssociateAddress` permissions:
+We have been using the following IAM policys to be able to list and associate
+Elastic IPs. This can probably be narrowed down abit. It allows EC2 read-only
+(from the IAM wizard) and `ec2:AssociateAddress` permissions:
 
     {
       "Statement": [
