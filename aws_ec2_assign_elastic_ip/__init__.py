@@ -146,14 +146,24 @@ def _has_associated_address(instance_id):
         return True
     return False
 
-def _is_ip_in_range(address,ips,expected_state):
+def _is_ip_in_range(address, ips):
+    """ Check if the IP is in a given range.
+
+    :type address: str
+    :param address: IP address to check
+    :type ips: str
+    :param ips: IP range
+    :returns: bool -- True if association is OK
+    """
     if not ips:
         return True
+
     for conf_ip in ips.split(','):
         try:
             for ip in IPNetwork(conf_ip):
                 if str(ip) == str(address):
                     return expected_state
+
         except AddrFormatError as err:
             logger.error('Invalid valid IP configured: {0}'.format(err))
             pass
@@ -172,8 +182,8 @@ def _is_valid(address):
     :param address: IP address to check
     :returns: bool -- True if association is OK
     """
-    if _is_ip_in_range(address,args.valid_ips,True) and \
-        _is_ip_in_range(address,args.invalid_ips,False):
-        return True
+    if _is_ip_in_range(address, args.valid_ips):
+        if not _is_ip_in_range(address, args.invalid_ips):
+            return True
 
     return False
