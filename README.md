@@ -1,6 +1,8 @@
 aws-ec2-assign-elastic-ip
 =========================
 
+[![PyPI version](https://badge.fury.io/py/aws-ec2-assign-elastic-ip.svg)](https://badge.fury.io/py/aws-ec2-assign-elastic-ip)
+
 Automatically assign Elastic IPs to AWS EC2 instances. This can be really nice in auto scaling groups were you need to communicate the external IP's to third party systems.
 
 The script should be executed on the EC2 instance that should get assigned an Elastic IP. This is typically done as part of the instance boot process.
