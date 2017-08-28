@@ -168,7 +168,7 @@ def _is_ip_in_range(address, ips):
         try:
             for ip in IPNetwork(conf_ip):
                 if str(ip) == str(address):
-                    return expected_state
+                    return True
 
         except AddrFormatError as err:
             logger.error('Invalid valid IP configured: {0}'.format(err))
@@ -178,7 +178,7 @@ def _is_ip_in_range(address, ips):
             logger.error('Invalid valid IP configured: {0}'.format(err))
             pass
 
-    return not expected_state
+    return False
 
 
 def _is_valid(address):
