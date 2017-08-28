@@ -189,7 +189,9 @@ def _is_valid(address):
     :returns: bool -- True if association is OK
     """
     if _is_ip_in_range(address, args.valid_ips):
-        if not _is_ip_in_range(address, args.invalid_ips):
+        if args.invalid_ips and _is_ip_in_range(address, args.invalid_ips):
+            return False
+        else:
             return True
 
     return False
