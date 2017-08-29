@@ -52,8 +52,17 @@ and AWS instance profiles.
                             - 58.0.0.0/8
                             - 123.213.0.0/16,58.0.0.0/8,195.234.023.0
                             - 195.234.234.23,195.234.234.24
+      --invalid-ips INVALID_IPS
+                            A comma separated list of Elastic IP ranges that 
+                            should NOT be used for assigning an ip.
+                            You can use CIDR expressions to select ranges.
+                            Valid examples:
+                            - 58.0.0.0/8
+                            - 123.213.0.0/16,58.0.0.0/8,195.234.023.0
+                            - 195.234.234.23,195.234.234.24
 
-The `--valid-ips` option require the public IPs in a comma separated sequence.
+
+The `--valid-ips` and `--invalid-ips` options require the public IPs in a comma separated sequence.
 E.g. `56.123.56.123,56.123.56.124,56.123.56.125`.
 
 Supported platforms
