@@ -168,7 +168,7 @@ def _is_ip_in_range(address, ips):
         try:
             for ip in IPNetwork(conf_ip):
                 if str(ip) == str(address):
-                    return expected_state
+                    return True
 
         except AddrFormatError as err:
             logger.error('Invalid valid IP configured: {0}'.format(err))
@@ -178,7 +178,7 @@ def _is_ip_in_range(address, ips):
             logger.error('Invalid valid IP configured: {0}'.format(err))
             pass
 
-    return not expected_state
+    return False
 
 
 def _is_valid(address):
@@ -189,7 +189,9 @@ def _is_valid(address):
     :returns: bool -- True if association is OK
     """
     if _is_ip_in_range(address, args.valid_ips):
-        if not _is_ip_in_range(address, args.invalid_ips):
+        if args.invalid_ips and _is_ip_in_range(address, args.invalid_ips):
+            return False
+        else:
             return True
 
     return False
