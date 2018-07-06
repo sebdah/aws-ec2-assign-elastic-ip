@@ -1,7 +1,10 @@
 aws-ec2-assign-elastic-ip
 =========================
 
-[![PyPI version](https://badge.fury.io/py/aws-ec2-assign-elastic-ip.svg)](https://badge.fury.io/py/aws-ec2-assign-elastic-ip)
+<p align="center">
+    <a href="https://badge.fury.io/py/aws-ec2-assign-elastic-ip"><img src="https://badge.fury.io/py/aws-ec2-assign-elastic-ip.svg"></a>
+    <a href="https://api.codeclimate.com/v1/badges/4442c269b5a726af0f0e/maintainability"><img src="https://api.codeclimate.com/v1/badges/4442c269b5a726af0f0e/maintainability"></a>
+</p>
 
 Automatically assign Elastic IPs to AWS EC2 instances. This can be really nice
 in auto scaling groups were you need to communicate the external IP's to third
@@ -53,7 +56,7 @@ and AWS instance profiles.
                             - 123.213.0.0/16,58.0.0.0/8,195.234.023.0
                             - 195.234.234.23,195.234.234.24
       --invalid-ips INVALID_IPS
-                            A comma separated list of Elastic IP ranges that 
+                            A comma separated list of Elastic IP ranges that
                             should NOT be used for assigning an ip.
                             You can use CIDR expressions to select ranges.
                             Valid examples:
