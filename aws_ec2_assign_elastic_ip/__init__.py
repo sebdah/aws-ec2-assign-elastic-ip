@@ -52,7 +52,7 @@ def main():
     if _has_associated_address(instance_id):
         logger.warning('{0} is already assigned an Elastic IP. Exiting.'.format(
             instance_id))
-#        sys.exit(0)
+        sys.exit(0)
 
     # Get an unassigned Elastic IP
     address = _get_unassociated_address()
@@ -87,13 +87,13 @@ def _assign_address(instance_id, address):
             connection.associate_address(        
                 InstanceId=instance_id,
                 PublicIp=address['PublicIp'],
-                AllowReassocation=False)
+                AllowReassociation=False)
         else:
         # EC2 VPC association
             connection.associate_address(
                 InstanceId=instance_id,
-                allocation_id=address['AllocationId'],
-                AllowReassocation=False)
+                AllocationId=address['AllocationId'],
+                AllowReassociation=False)
     except Exception as error:
         logger.error('Failed to associate {0} with {1}. Reason: {2}'.format(
             instance_id, address['PublicIp'], error))
@@ -112,13 +112,13 @@ def _get_unassociated_address():
 
     for address in connection.describe_addresses()['Addresses']:
         # Check if the address is associated
-        if address['InstanceId']:
+        if 'InstanceId' in address.keys():
             logger.debug('{0} is already associated with {1}'.format(
                 address['PublicIp'], address['InstanceId']))
             continue
 
         # Check if the address is attached to an ENI
-        if address['NetworkInterfaceId']:
+        if 'NetworkInterfaceId' in address.keys():
             logger.debug('{0} is already attached to {1}'.format(
                 address['PublicIp'], address['NetworkInterfaceId']))
             continue
