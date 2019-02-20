@@ -133,7 +133,7 @@ def _get_unassociated_address():
         else:
             logger.debug(
                 '{0} is unassociated, but not in the valid IPs list'.format(
-                    address['PublicIp'], address['InstanceId']))
+                    address['PublicIp']))
 
     if not eip:
         logger.error('No unassociated Elastic IP found!')
