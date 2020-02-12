@@ -111,8 +111,10 @@ def _get_unassociated_address():
     :returns: boto.ec2.address or None
     """
     eip = None
-
-    for address in random.shuffle(connection.get_all_addresses()):
+    
+    all_addresses = connection.get_all_addresses()
+    random.shuffle(all_addresses)
+    for address in all_addresses:
         # Check if the address is associated
         if address.instance_id:
             logger.debug('{0} is already associated with {1}'.format(
