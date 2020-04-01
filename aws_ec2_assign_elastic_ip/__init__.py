@@ -2,6 +2,7 @@
 import logging
 import logging.config
 import sys
+import random
 
 if sys.platform in ['win32', 'cygwin']:
     import ntpath as ospath
@@ -105,12 +106,15 @@ def _assign_address(instance_id, address):
 
 def _get_unassociated_address():
     """ Return the first unassociated EIP we can find
+    Shuffles list before iterating to alleviate collisions
 
     :returns: boto.ec2.address or None
     """
     eip = None
-
-    for address in connection.get_all_addresses():
+    
+    all_addresses = connection.get_all_addresses()
+    random.shuffle(all_addresses)
+    for address in all_addresses:
         # Check if the address is associated
         if address.instance_id:
             logger.debug('{0} is already associated with {1}'.format(
