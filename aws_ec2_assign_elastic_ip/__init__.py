@@ -9,10 +9,10 @@ if sys.platform in ['win32', 'cygwin']:
 else:
     import os.path as ospath
 
-import boto.utils
 from netaddr import IPNetwork, AddrFormatError, AddrConversionError
-from boto.ec2 import connect_to_region
-from boto.utils import get_instance_metadata
+
+from ec2_metadata import ec2_metadata
+import boto3
 
 from aws_ec2_assign_elastic_ip.command_line_options import ARGS as args
 
@@ -24,31 +24,29 @@ logger = logging.getLogger('aws-ec2-assign-eip')
 
 region = args.region
 
-# Fetch instance metadata
-metadata = get_instance_metadata(timeout=1, num_retries=1)
-if metadata:
-    try:
-        region = metadata['placement']['availability-zone'][:-1]
-    except KeyError:
-        pass
+try:
+    region = ec2_metadata.region
+except KeyError:
+    pass
 
 # Connect to AWS EC2
 if args.access_key or args.secret_key:
     # Use command line credentials
-    connection = connect_to_region(
-        region,
-        aws_access_key_id=args.access_key,
-        aws_secret_access_key=args.secret_key)
+    connection = boto3.client('ec2',
+                              region_name=region,
+                              aws_access_key_id=args.access_key,
+                              aws_secret_access_key=args.secret_key)
 else:
     # Use environment vars or global boto configuration or instance metadata
-    connection = connect_to_region(region)
+    connection = boto3.client('ec2',
+                              region_name=region)
 logger.info('Connected to AWS EC2 in {0}'.format(region))
 
 
 def main():
     """ Main function """
     # Get our instance name
-    instance_id = boto.utils.get_instance_metadata()['instance-id']
+    instance_id = ec2_metadata.instance_id
 
     # Check if the instance already has an Elastic IP
     # If so, exit
@@ -66,7 +64,7 @@ def main():
 
     # Assign the Elastic IP to our instance
     if args.dry_run:
-        logger.info('Would assign IP {0}'.format(address.public_ip))
+        logger.info('Would assign IP {0}'.format(address['PublicIp']))
     else:
         _assign_address(instance_id, address)
 
@@ -81,27 +79,29 @@ def _assign_address(instance_id, address):
     :returns: None
     """
     logger.debug('Trying to associate {0} with {1}'.format(
-        instance_id, address.public_ip))
+        instance_id, address['PublicIp']))
 
     # Check if this is an VPC or standard allocation
     try:
-        if address.domain == 'standard':
-            # EC2 classic association
-            connection.associate_address(
-                instance_id,
-                public_ip=address.public_ip)
+        if address['Domain'] == 'standard':
+        # EC2 classic association
+            connection.associate_address(        
+                InstanceId=instance_id,
+                PublicIp=address['PublicIp'],
+                AllowReassociation=False)
         else:
-            # EC2 VPC association
+        # EC2 VPC association
             connection.associate_address(
-                instance_id,
-                allocation_id=address.allocation_id)
+                InstanceId=instance_id,
+                AllocationId=address['AllocationId'],
+                AllowReassociation=False)
     except Exception as error:
         logger.error('Failed to associate {0} with {1}. Reason: {2}'.format(
-            instance_id, address.public_ip, error))
+            instance_id, address['PublicIp'], error))
         sys.exit(1)
 
     logger.info('Successfully associated Elastic IP {0} with {1}'.format(
-        address.public_ip, instance_id))
+        address['PublicIp'], instance_id))
 
 
 def _get_unassociated_address():
@@ -116,28 +116,28 @@ def _get_unassociated_address():
     random.shuffle(all_addresses)
     for address in all_addresses:
         # Check if the address is associated
-        if address.instance_id:
+        if 'InstanceId' in address.keys():
             logger.debug('{0} is already associated with {1}'.format(
-                address.public_ip, address.instance_id))
+                address['PublicIp'], address['InstanceId']))
             continue
 
         # Check if the address is attached to an ENI
-        if address.network_interface_id:
+        if 'NetworkInterfaceId' in address.keys():
             logger.debug('{0} is already attached to {1}'.format(
-                address.public_ip, address.network_interface_id))
+                address['PublicIp'], address['NetworkInterfaceId']))
             continue
 
         # Check if the address is in the valid IP's list
-        if _is_valid(address.public_ip):
+        if _is_valid(address['PublicIp']):
             logger.debug('{0} is unassociated and OK for us to take'.format(
-                address.public_ip))
+                address['PublicIp']))
             eip = address
             break
 
         else:
             logger.debug(
                 '{0} is unassociated, but not in the valid IPs list'.format(
-                    address.public_ip, address.instance_id))
+                    address['PublicIp']))
 
     if not eip:
         logger.error('No unassociated Elastic IP found!')
@@ -152,7 +152,7 @@ def _has_associated_address(instance_id):
     :param instance_id: Instances ID
     :returns: bool -- True if the instance has an Elastic IP associated
     """
-    if connection.get_all_addresses(filters={'instance-id': instance_id}):
+    if connection.describe_addresses(Filters=[{'Name': 'instance-id', 'Values': [ec2_metadata.instance_id]}])['Addresses']:
         return True
     return False
 
