@@ -85,7 +85,7 @@ def _assign_address(instance_id, address):
     try:
         if address['Domain'] == 'standard':
         # EC2 classic association
-            connection.associate_address(        
+            connection.associate_address(
                 InstanceId=instance_id,
                 PublicIp=address['PublicIp'],
                 AllowReassociation=False)
@@ -111,8 +111,13 @@ def _get_unassociated_address():
     :returns: boto.ec2.address or None
     """
     eip = None
-    
-    all_addresses = connection.get_all_addresses()
+
+    try:
+        all_addresses = connection.describe_addresses()['Addresses']
+    except KeyError as error:
+        logger.error('Address list could not be read: "{0}"'.format(error))
+        return eip
+
     random.shuffle(all_addresses)
     for address in all_addresses:
         # Check if the address is associated
