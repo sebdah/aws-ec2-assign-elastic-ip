@@ -9,16 +9,11 @@ except ImportError:
 settings = SafeConfigParser()
 settings.read(os.path.realpath('aws_ec2_assign_elastic_ip/settings.conf'))
 
-with open('README.md', 'r') as fh:
-    long_description = fh.read()
-
 setup(
     name='aws-ec2-assign-elastic-ip',
     version=settings.get('general', 'version'),
     license='Apache License, Version 2.0',
     description='Automatically assign Elastic IPs to AWS EC2 instances',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
     author='Sebastian Dahlgren, Skymill Solutions',
     author_email='sebastian.dahlgren@skymill.se',
     url='https://github.com/skymill/aws-ec2-assign-elastic-ip',
