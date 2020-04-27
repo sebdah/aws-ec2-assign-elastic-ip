@@ -80,11 +80,7 @@ We currently support Python 2.6, 2.7 and 3.X
 Required IAM permissions
 ------------------------
 
-**Community contribution much appreciated on this!**
-
-We have been using the following IAM policys to be able to list and associate
-Elastic IPs. This can probably be narrowed down abit. It allows EC2 read-only
-(from the IAM wizard) and `ec2:AssociateAddress` permissions:
+We have been using the following IAM policies to be able to list and associate Elastic IPs. It allows EC2 `ec2:DescribeAddresses` and `ec2:AssociateAddress` permissions:
 
     {
       "Statement": [
@@ -92,7 +88,7 @@ Elastic IPs. This can probably be narrowed down abit. It allows EC2 read-only
           "Effect": "Allow",
           "Action": [
             "ec2:AssociateAddress",
-            "ec2:Describe*"
+            "ec2:DescribeAddresses"
           ],
           "Resource": "*"
         }
